@@ -94,7 +94,7 @@ $product = $woo->fetchProduct('https://shop.example/product/margaux/');
 $stocks = $woo->fetchInventory(['501', '602']);
 ```
 
-With the harness of glitchr/omnitrade (`core/docker`):
+With the harness of omniscient/omnitrade (`core/docker`):
 
 ```sh
 docker compose run --rm omnitrade catalogue woocommerce --query=margaux

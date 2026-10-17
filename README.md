@@ -1,6 +1,6 @@
 # omnitrade/woocommerce
 
-WooCommerce for [glitchr/omnitrade](https://github.com/glitchr-studio/omnitrade): a sale paid on
+WooCommerce for [omniscient/omnitrade](https://github.com/glitchr-studio/omnitrade): a sale paid on
 the shop's own checkout (an order created unpaid, with its payment URL), the shop's orders and
 their payment state, refunds, the payment gateways switched on, the catalogue, and webhooks - the
 REST API v3.
@@ -9,7 +9,7 @@ REST API v3.
 $gateway = (new WooCommerceGatewayFactory($http))->create(['url' => 'https://shop.example/', 'consumer_key' => '...', 'consumer_secret' => '...']);   // $http: the application's HTTP client; none given, the factory makes its own
 ```
 
-No framework needed: the package requires `glitchr/omnitrade` and `symfony/http-client`. In a
+No framework needed: the package requires `omniscient/omnitrade` and `symfony/http-client`. In a
 Symfony application, the same through the bundle's configuration:
 
 ```yaml
