@@ -3,13 +3,13 @@ title: Catalogue
 order: 10
 ---
 
-## WooCommerce's catalogue
+# WooCommerce's catalogue
 
 The shop's products, variations and stock, read through the
 [omnitrade catalogue contract](https://github.com/glitchr-studio/omnitrade/blob/1.x/docs/catalogue.md)
 over the REST API v3.
 
-### Setting it up
+## Setting it up
 
 ```sh
 composer require omnitrade/woocommerce symfony/http-client
@@ -36,7 +36,7 @@ omnitrade:
 | `weight_unit` | `kg` | The store's weight unit (Settings → Products): `kg`, `g`, `lbs`, `oz`; weights are given in grams. |
 | `product_status` | `any` | What `fetchProducts()` lists: `any` (drafts, pending and private ones too), or `publish`. |
 
-### Requests
+## Requests
 
 | Request | What is sent |
 |---|---|
@@ -44,7 +44,7 @@ omnitrade:
 | `fetchProduct($reference)` | A numeric id → `GET /products/<id>` (a variation's id gives its product); any other id is a slug, and a page's URL gives its slug (the last segment of `/product/<slug>/`), or its id with `?p=<id>` → `GET /products?slug=<slug>&status=any`. `null` when there is none. |
 | `fetchInventory($ids)` | The ids through `GET /products?include=…` (a simple product's own stock, a variable product's variations'), the rest - variations - one by one through `GET /products/<id>`; none given, every product and variation of the shop. Unknown ids are left out. |
 
-### What is mapped how
+## What is mapped how
 
 | WooCommerce | omnitrade |
 |---|---|
@@ -65,7 +65,7 @@ omnitrade:
 | `manage_stock`, `stock_quantity` | `Stock`: the quantity when managed, else `null` with `tracked: false`; a variation's `"parent"` counts on its product's |
 | `weight` | `weight`, in grams |
 
-### Webhooks
+## Webhooks
 
 Add webhooks (WooCommerce → Settings → Advanced → Webhooks) for `Product created`,
 `Product updated`, `Product deleted` (and `Product restored`) to your endpoint, with the same
@@ -76,7 +76,7 @@ secret as the order webhook; `notify()` checks `X-WC-Webhook-Signature`.
 | `product.created`, `product.updated`, `product.restored` | `$product`, mapped as above. The payload of a variable product lists its variations' ids only: they are read along (one call). A variation's payload is read as its whole product (two calls). `$reference` is the product's id. |
 | `product.deleted` | `$product` null, `$reference` the product's id. |
 
-### Examples
+## Examples
 
 ```php
 $page = $woo->fetchProducts(updatedSince: $lastSync);
