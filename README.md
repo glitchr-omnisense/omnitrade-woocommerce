@@ -42,6 +42,9 @@ regular and sale prices are mapped: see [docs/catalogue.md](docs/catalogue.md).
 Credentials: a REST API key with Read/Write (WooCommerce → Settings → Advanced → REST API) over
 HTTPS, and a webhook (same screen → Webhooks) for `order.updated` with a secret of your own.
 
+The manual, [docs/index.md](docs/index.md): every option, what each operation sends and reads, the
+webhook topics, errors, and what is verified.
+
 ## Responsibility
 
 This package is an independent, unofficial client: it is not affiliated with, endorsed by or
