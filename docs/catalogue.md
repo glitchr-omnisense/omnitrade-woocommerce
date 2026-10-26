@@ -6,7 +6,7 @@ order: 10
 # WooCommerce's catalogue
 
 The shop's products, variations and stock, read through the
-[omnitrade catalogue contract](https://github.com/glitchr-studio/omnitrade/blob/1.x/docs/catalogue.md)
+[omnitrade catalogue contract](https://github.com/glitchr-omnisense/omnitrade/blob/1.x/docs/catalogue.md)
 over the REST API v3.
 
 ## Setting it up
@@ -94,7 +94,7 @@ $product = $woo->fetchProduct('https://shop.example/product/margaux/');
 $stocks = $woo->fetchInventory(['501', '602']);
 ```
 
-With the harness of omniscient/omnitrade (`core/docker`):
+With the harness of omnisense/omnitrade (`core/docker`):
 
 ```sh
 docker compose run --rm omnitrade catalogue woocommerce --query=margaux

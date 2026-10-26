@@ -1,6 +1,6 @@
 # omnitrade/woocommerce
 
-WooCommerce for [omniscient/omnitrade](https://github.com/glitchr-studio/omnitrade): a sale paid on
+WooCommerce for [omnisense/omnitrade](https://github.com/glitchr-omnisense/omnitrade): a sale paid on
 the shop's own checkout (an order created unpaid, with its payment URL), the shop's orders and
 their payment state, refunds, the payment gateways switched on, the catalogue (products,
 variations, stock) and webhooks - WooCommerce's REST API v3, at
@@ -29,7 +29,7 @@ address: a staging shop is the test shop.
 composer require omnitrade/woocommerce
 ```
 
-Requires PHP 8.2, `omniscient/omnitrade` (1.x) and `symfony/http-client` (6.4, 7 or 8). In a
+Requires PHP 8.2, `omnisense/omnitrade` (1.x) and `symfony/http-client` (6.4, 7 or 8). In a
 Symfony application with `Omnitrade\Bridge\Symfony\OmnitradeBundle`, the factory is registered as
 soon as the package is installed.
 
@@ -194,7 +194,7 @@ $woo->refund($transaction->reference, Money::of(500, 'EUR'), reason: 'One bottle
 ```
 
 A WooCommerce catalogue copied page by page, offline, with its output, is in the core's manual
-([catalogue](https://github.com/glitchr-studio/omnitrade/blob/1.x/docs/catalogue.md)). In the core's
+([catalogue](https://github.com/glitchr-omnisense/omnitrade/blob/1.x/docs/catalogue.md)). In the core's
 Docker harness: `docker compose run --rm omnitrade purchase woocommerce --amount 1990`, `catalogue
 woocommerce --inventory`.
 
