@@ -4,6 +4,7 @@ namespace Omnitrade\WooCommerce;
 
 use Omnitrade\Exception\InvalidNotificationException;
 use Omnitrade\Exception\ProviderException;
+use Omnitrade\Http\Redaction;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface as HttpExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -93,14 +94,16 @@ final class Api
             $content = $response->getContent(false);
             $headers = $response->getHeaders(false);
         } catch (HttpExceptionInterface|\JsonException $e) {
-            throw new ProviderException('woocommerce', 'WooCommerce request failed: '.$e->getMessage(), null, $e);
+            $secrets = $this->secrets();
+
+            throw Redaction::withoutArguments(new ProviderException('woocommerce', 'WooCommerce request failed: '.Redaction::text($e->getMessage(), $secrets), null, Redaction::copy($e, $secrets)));
         }
         $data = '' === $content ? [] : json_decode($content, true);
         if (!\is_array($data)) {
-            throw new ProviderException('woocommerce', sprintf('WooCommerce answered HTTP %d with a body that is not JSON.', $status));
+            throw Redaction::withoutArguments(new ProviderException('woocommerce', sprintf('WooCommerce answered HTTP %d with a body that is not JSON.', $status)));
         }
         if ($status >= 400) {
-            throw new ProviderException('woocommerce', (string) ($data['message'] ?? sprintf('HTTP %d', $status)), isset($data['code']) ? (string) $data['code'] : null);
+            throw Redaction::withoutArguments(new ProviderException('woocommerce', (string) ($data['message'] ?? sprintf('HTTP %d', $status)), isset($data['code']) ? (string) $data['code'] : null));
         }
 
         return [$data, $headers];
@@ -126,5 +129,15 @@ final class Api
     public static function sign(string $body, string $secret): string
     {
         return base64_encode(hash_hmac('sha256', $body, $secret, true));
+    }
+
+    /**
+     * What a failure must not carry: the credentials.
+     *
+     * @return list<string>
+     */
+    private function secrets(string ...$more): array
+    {
+        return [$this->consumerKey, $this->consumerSecret, (string) $this->webhookSecret, ...$more];
     }
 }

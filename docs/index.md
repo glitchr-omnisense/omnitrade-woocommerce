@@ -205,7 +205,7 @@ Every failure is an `Omnitrade\Exception\ProviderException` whose `provider` is 
 - an HTTP status of 400 or more: WooCommerce's `message`, its `code` as `providerCode`;
 - a body that is not JSON (an HTML page from WordPress or a proxy): `WooCommerce answered HTTP
   <status> with a body that is not JSON.`; a network failure: `WooCommerce request failed: ...`,
-  the exception as `previous`;
+  a copy of the HTTP client's exception as `previous`;
 - `WooCommerce created no order.`, `Order <id> was created, but the shop gave no payment URL.`,
   `WooCommerce recorded no refund.`;
 - a webhook: `InvalidNotificationException` without `webhook_secret` or for a signature that does
@@ -215,6 +215,12 @@ A missing `url`, `consumer_key` or `consumer_secret` is an `InvalidConfigExcepti
 gateway is built; `Authorize`, `Capture`, `VoidAuthorization`, `AffiliateLink`, connected accounts
 and subscriptions raise `RequestNotSupportedException` before any call. `fetchProduct()` of an id
 the shop does not have (`..._invalid_id`) is `null`.
+
+No failure carries the consumer key and secret: a network failure's message has them masked as `***`
+(the key parameters of a URL too), its previous is a copy of the HTTP client's exception (the same
+class and code, without its request), and no trace of the chain keeps its arguments, where the
+request's options stood ([No secret in a
+failure](https://github.com/glitchr-omnisense/omnitrade/blob/1.x/docs/errors.md#no-secret-in-a-failure)).
 
 ## Verified, and not
 
