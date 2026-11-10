@@ -158,6 +158,12 @@ payload. How the product webhooks are read: [WooCommerce's catalogue](catalogue.
 `ProviderException` with WooCommerce's `message` and its `code` as `providerCode`
 (`woocommerce_rest_shop_order_invalid_id`).
 
+## Tags
+
+The `tags` option is put in the order's `meta_data` (under the payment's metadata, with `site`
+the configuration's) and in the refund's. `notify()` gives an order's back
+(`Notification::$tags`), without the merchant's reference and WooCommerce's `_` fields. See omnisense/omnitrade's [Several sites in one sandbox](https://github.com/glitchr-omnisense/omnitrade/blob/1.x/docs/several-sites.md).
+
 ## Example
 
 ```php

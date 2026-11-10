@@ -5,6 +5,8 @@ namespace Omnitrade\WooCommerce\Action;
 use Omnitrade\Action\ActionInterface;
 use Omnitrade\Action\ApiAwareInterface;
 use Omnitrade\Action\ApiAwareTrait;
+use Omnitrade\Action\TagsAwareInterface;
+use Omnitrade\Action\TagsAwareTrait;
 use Omnitrade\Exception\ProviderException;
 use Omnitrade\Model\Money;
 use Omnitrade\Model\Refund as RefundModel;
@@ -12,12 +14,14 @@ use Omnitrade\Model\Status;
 use Omnitrade\Request\Refund;
 use Omnitrade\Request\Request;
 use Omnitrade\WooCommerce\Api;
+use Omnitrade\WooCommerce\Orders;
 
 /** A refund on an order, through the shop's payment gateway when it can (api_refund). */
-final class RefundAction implements ActionInterface, ApiAwareInterface
+final class RefundAction implements ActionInterface, ApiAwareInterface, TagsAwareInterface
 {
     /** @use ApiAwareTrait<Api> */
     use ApiAwareTrait;
+    use TagsAwareTrait;
 
     public function __construct()
     {
@@ -39,6 +43,8 @@ final class RefundAction implements ActionInterface, ApiAwareInterface
             'amount' => $amount->decimal(),
             'reason' => $request->reason,
             'api_refund' => true,
+            // The gateway's tags (the "tags" option: site) as the refund's meta_data.
+            'meta_data' => Orders::meta($this->tags()->merge()) ?: null,
         ], static fn ($v) => null !== $v));
         if (empty($data['id'])) {
             throw new ProviderException('woocommerce', 'WooCommerce recorded no refund.');

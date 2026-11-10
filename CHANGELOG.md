@@ -2,6 +2,12 @@
 
 ## Unreleased (1.x)
 
+### Added
+- The gateway's `tags` option (omnisense/omnitrade): the order's `meta_data` (under the payment's
+  metadata, `site` the configuration's) and the refund's; `notify()` gives an order's back
+  (`Notification::$tags`, without the merchant's reference and the `_` fields). Tests on recorded
+  requests (`WooCommerceTagsTest`).
+
 ### Fixed
 - A `ProviderException` no longer carries the consumer key and secret. The message quoted the HTTP
   client's (the whole URL), the previous was the client's own exception, and every trace of the

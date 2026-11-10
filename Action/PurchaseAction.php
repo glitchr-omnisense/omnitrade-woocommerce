@@ -5,6 +5,8 @@ namespace Omnitrade\WooCommerce\Action;
 use Omnitrade\Action\ActionInterface;
 use Omnitrade\Action\ApiAwareInterface;
 use Omnitrade\Action\ApiAwareTrait;
+use Omnitrade\Action\TagsAwareInterface;
+use Omnitrade\Action\TagsAwareTrait;
 use Omnitrade\Exception\ProviderException;
 use Omnitrade\Request\Purchase;
 use Omnitrade\Request\Request;
@@ -17,10 +19,11 @@ use Omnitrade\WooCommerce\Orders;
  * the order.updated webhook says when they did. WooCommerce brings nobody
  * back: returnUrl is not used.
  */
-final class PurchaseAction implements ActionInterface, ApiAwareInterface
+final class PurchaseAction implements ActionInterface, ApiAwareInterface, TagsAwareInterface
 {
     /** @use ApiAwareTrait<Api> */
     use ApiAwareTrait;
+    use TagsAwareTrait;
 
     public function __construct()
     {
@@ -35,7 +38,7 @@ final class PurchaseAction implements ActionInterface, ApiAwareInterface
     public function execute(Request $request): void
     {
         \assert($request instanceof Purchase);
-        $order = $this->api->call('POST', 'orders', Orders::create($request->payment));
+        $order = $this->api->call('POST', 'orders', Orders::create($request->payment, $this->tags()));
         if (empty($order['id'])) {
             throw new ProviderException('woocommerce', 'WooCommerce created no order.');
         }

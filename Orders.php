@@ -8,12 +8,51 @@ use Omnitrade\Model\Money;
 use Omnitrade\Model\Payment;
 use Omnitrade\Model\PlatformOrder;
 use Omnitrade\Model\Status;
+use Omnitrade\Model\Tags;
 use Omnitrade\Model\Transaction;
 
 /** A WooCommerce order, as the REST API answers it, read as a Transaction or a PlatformOrder; and a Payment written as one. */
 final class Orders
 {
     public const REFERENCE_KEY = 'omnitrade_reference';
+
+    /**
+     * A map as WooCommerce's meta_data list.
+     *
+     * @param array<string, string> $values
+     *
+     * @return list<array{key: string, value: string}>
+     */
+    public static function meta(array $values): array
+    {
+        $meta = [];
+        foreach ($values as $key => $value) {
+            $meta[] = ['key' => $key, 'value' => $value];
+        }
+
+        return $meta;
+    }
+
+    /**
+     * The tags an order or a refund carries: its meta_data, but the
+     * merchant's reference and WooCommerce's own hidden fields ("_...").
+     *
+     * @param array<string, mixed> $object
+     *
+     * @return array<string, string>
+     */
+    public static function tags(array $object): array
+    {
+        $tags = [];
+        foreach (\is_array($object['meta_data'] ?? null) ? $object['meta_data'] : [] as $meta) {
+            $key = \is_array($meta) ? ($meta['key'] ?? null) : null;
+            if (\is_string($key) && '' !== $key && self::REFERENCE_KEY !== $key && !str_starts_with($key, '_') && \is_scalar($meta['value'] ?? null)) {
+                $tags[$key] = (string) $meta['value'];
+            }
+        }
+
+        return $tags;
+    }
 
     public static function status(array $order): Status
     {
@@ -99,8 +138,15 @@ final class Orders
         );
     }
 
-    /** @return array<string, mixed> an order to create, unpaid: the buyer pays it on the shop's checkout */
-    public static function create(Payment $payment): array
+    /**
+     * An order to create, unpaid: the buyer pays it on the shop's checkout.
+     * Its meta_data: the merchant's reference, then the gateway's tags (the
+     * "tags" option) and the payment's metadata over them, "site" the
+     * configuration's.
+     *
+     * @return array<string, mixed>
+     */
+    public static function create(Payment $payment, ?Tags $tags = null): array
     {
         $currency = $payment->amount->currency;
         $items = [];
@@ -121,10 +167,7 @@ final class Orders
         }
         $customer = $payment->customer;
         $name = $customer?->name ? explode(' ', $customer->name, 2) : [];
-        $meta = [['key' => self::REFERENCE_KEY, 'value' => $payment->reference]];
-        foreach ($payment->metadata as $key => $value) {
-            $meta[] = ['key' => (string) $key, 'value' => (string) $value];
-        }
+        $meta = [['key' => self::REFERENCE_KEY, 'value' => $payment->reference], ...self::meta(($tags ?? new Tags())->merge($payment->metadata))];
         $order = array_filter([
             'status' => 'pending',
             'currency' => $currency,

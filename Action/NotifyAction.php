@@ -74,6 +74,7 @@ final class NotifyAction implements ActionInterface, ApiAwareInterface
             id: $request->header('X-WC-Webhook-Delivery-ID'),
             raw: ['topic' => $topic, 'resource' => $request->header('X-WC-Webhook-Resource'), 'event' => $request->header('X-WC-Webhook-Event'), 'payload' => $payload],
             product: $product,
+            tags: Orders::tags($payload),
         ));
     }
 }
