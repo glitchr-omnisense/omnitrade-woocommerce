@@ -3,6 +3,11 @@
 ## Unreleased (1.x)
 
 ### Added
+- `policy.json` (`extra.omnisense.policy`): no rate limit of the REST API's own (the shop's host may set
+  one); verified 2026-11-10.
+- The gateway's Backoff (omnisense/omnitrade's `Http\Throttle`): a 429 from the shop's host is a
+  `RateLimitedException` with its `Retry-After`, never retried, the next calls held. Requires
+  omnisense/contracts.
 - The gateway's `tags` option (omnisense/omnitrade): the order's `meta_data` (under the payment's
   metadata, `site` the configuration's) and the refund's; `notify()` gives an order's back
   (`Notification::$tags`, without the merchant's reference and the `_` fields). Tests on recorded
@@ -15,3 +20,4 @@
   credentials) when `zend.exception_ignore_args` is off: a log of the whole chain wrote them. The
   message masks them as `***`, the previous is a copy of the client's exception (the same class and
   code), and no exception `Api` throws keeps its trace's arguments (`Omnitrade\Http\Redaction`).
+

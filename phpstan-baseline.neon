@@ -1,0 +1,835 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Binary operation "\." between ''products/'' and mixed results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 2
+			path: Action/FetchInventoryAction.php
+
+		-
+			message: '#^Cannot access offset ''id'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: Action/FetchInventoryAction.php
+
+		-
+			message: '#^Cannot cast mixed to string\.$#'
+			identifier: cast.string
+			count: 1
+			path: Action/FetchInventoryAction.php
+
+		-
+			message: '#^Method Omnitrade\\WooCommerce\\Action\\FetchInventoryAction\:\:stocks\(\) has parameter \$product with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Action/FetchInventoryAction.php
+
+		-
+			message: '#^Parameter \#1 \$product of method Omnitrade\\WooCommerce\\Action\\FetchInventoryAction\:\:stocks\(\) expects array, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Action/FetchInventoryAction.php
+
+		-
+			message: '#^Parameter \#2 \$parent of static method Omnitrade\\WooCommerce\\Products\:\:stock\(\) expects array\<string, mixed\>\|null, array given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Action/FetchInventoryAction.php
+
+		-
+			message: '#^Parameter \#2 \$parent of static method Omnitrade\\WooCommerce\\Products\:\:stock\(\) expects array\<string, mixed\>\|null, array\<mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Action/FetchInventoryAction.php
+
+		-
+			message: '#^Parameter \#1 \$order of static method Omnitrade\\WooCommerce\\Orders\:\:platformOrder\(\) expects array\<string, mixed\>, array\<mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Action/FetchOrderAction.php
+
+		-
+			message: '#^Binary operation "\." between ''products/'' and mixed results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: Action/FetchProductAction.php
+
+		-
+			message: '#^Cannot cast mixed to string\.$#'
+			identifier: cast.string
+			count: 1
+			path: Action/FetchProductAction.php
+
+		-
+			message: '#^Method Omnitrade\\WooCommerce\\Action\\FetchProductAction\:\:byId\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Action/FetchProductAction.php
+
+		-
+			message: '#^Parameter \#1 \$product of static method Omnitrade\\WooCommerce\\Products\:\:product\(\) expects array\<string, mixed\>, array\<mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Action/FetchProductAction.php
+
+		-
+			message: '#^Binary operation "\." between ''products/'' and mixed results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: Action/FetchProductsAction.php
+
+		-
+			message: '#^Parameter \#1 \$order of static method Omnitrade\\WooCommerce\\Orders\:\:transaction\(\) expects array\<string, mixed\>, array\<mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Action/FetchTransactionAction.php
+
+		-
+			message: '#^Cannot cast mixed to string\.$#'
+			identifier: cast.string
+			count: 2
+			path: Action/GetPaymentMethodsAction.php
+
+		-
+			message: '#^Binary operation "\." between ''products/'' and mixed results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 2
+			path: Action/NotifyAction.php
+
+		-
+			message: '#^Cannot cast mixed to string\.$#'
+			identifier: cast.string
+			count: 3
+			path: Action/NotifyAction.php
+
+		-
+			message: '#^Parameter \#1 \$object of static method Omnitrade\\WooCommerce\\Orders\:\:tags\(\) expects array\<string, mixed\>, array\<mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Action/NotifyAction.php
+
+		-
+			message: '#^Parameter \#1 \$order of static method Omnitrade\\WooCommerce\\Orders\:\:transaction\(\) expects array\<string, mixed\>, array\<mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Action/NotifyAction.php
+
+		-
+			message: '#^Parameter \#1 \$product of static method Omnitrade\\WooCommerce\\Products\:\:product\(\) expects array\<string, mixed\>, array\<mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Action/NotifyAction.php
+
+		-
+			message: '#^Parameter \#1 \$order of static method Omnitrade\\WooCommerce\\Orders\:\:transaction\(\) expects array\<string, mixed\>, array\<mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Action/PurchaseAction.php
+
+		-
+			message: '#^Parameter \#2 \.\.\.\$values of function sprintf expects bool\|float\|int\|string\|null, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Action/PurchaseAction.php
+
+		-
+			message: '#^Cannot cast mixed to string\.$#'
+			identifier: cast.string
+			count: 4
+			path: Action/RefundAction.php
+
+		-
+			message: '#^Parameter \$message of class Omnitrade\\Model\\Refund constructor expects string\|null, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Action/RefundAction.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>currency" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: Action/RefundAction.php
+
+		-
+			message: '#^Cannot cast mixed to string\.$#'
+			identifier: cast.string
+			count: 2
+			path: Api.php
+
+		-
+			message: '#^Method Omnitrade\\WooCommerce\\Api\:\:all\(\) has parameter \$query with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Api.php
+
+		-
+			message: '#^Method Omnitrade\\WooCommerce\\Api\:\:call\(\) has parameter \$query with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Api.php
+
+		-
+			message: '#^Method Omnitrade\\WooCommerce\\Api\:\:page\(\) has parameter \$query with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Api.php
+
+		-
+			message: '#^Method Omnitrade\\WooCommerce\\Api\:\:page\(\) should return array\{list\<array\<string, mixed\>\>, int\|null\} but returns array\{list\<mixed\>, int\|null\}\.$#'
+			identifier: return.type
+			count: 1
+			path: Api.php
+
+		-
+			message: '#^Method Omnitrade\\WooCommerce\\Api\:\:secrets\(\) should return list\<string\> but returns non\-empty\-array\<int\<0, max\>\|string, string\>\.$#'
+			identifier: return.type
+			count: 1
+			path: Api.php
+
+		-
+			message: '#^Method Omnitrade\\WooCommerce\\Api\:\:send\(\) has parameter \$body with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Api.php
+
+		-
+			message: '#^Method Omnitrade\\WooCommerce\\Api\:\:send\(\) has parameter \$query with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Api.php
+
+		-
+			message: '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\.$#'
+			identifier: foreach.nonIterable
+			count: 3
+			path: Orders.php
+
+		-
+			message: '#^Binary operation "\." between ''\#'' and mixed results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: Orders.php
+
+		-
+			message: '#^Binary operation "\." between mixed and '' '' results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: Orders.php
+
+		-
+			message: '#^Binary operation "\." between mixed and ''Z'' results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 2
+			path: Orders.php
+
+		-
+			message: '#^Binary operation "\." between non\-falsy\-string and mixed results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: Orders.php
+
+		-
+			message: '#^Cannot access offset ''address_1'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: Orders.php
+
+		-
+			message: '#^Cannot access offset ''address_2'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: Orders.php
+
+		-
+			message: '#^Cannot access offset ''city'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: Orders.php
+
+		-
+			message: '#^Cannot access offset ''country'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: Orders.php
+
+		-
+			message: '#^Cannot access offset ''email'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: Orders.php
+
+		-
+			message: '#^Cannot access offset ''first_name'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: Orders.php
+
+		-
+			message: '#^Cannot access offset ''last_name'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: Orders.php
+
+		-
+			message: '#^Cannot access offset ''name'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: Orders.php
+
+		-
+			message: '#^Cannot access offset ''phone'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: Orders.php
+
+		-
+			message: '#^Cannot access offset ''postcode'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: Orders.php
+
+		-
+			message: '#^Cannot access offset ''price'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: Orders.php
+
+		-
+			message: '#^Cannot access offset ''product_id'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: Orders.php
+
+		-
+			message: '#^Cannot access offset ''quantity'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: Orders.php
+
+		-
+			message: '#^Cannot access offset ''sku'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: Orders.php
+
+		-
+			message: '#^Cannot access offset ''total'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 3
+			path: Orders.php
+
+		-
+			message: '#^Cannot cast mixed to float\.$#'
+			identifier: cast.double
+			count: 4
+			path: Orders.php
+
+		-
+			message: '#^Cannot cast mixed to int\.$#'
+			identifier: cast.int
+			count: 1
+			path: Orders.php
+
+		-
+			message: '#^Cannot cast mixed to string\.$#'
+			identifier: cast.string
+			count: 11
+			path: Orders.php
+
+		-
+			message: '#^Method Omnitrade\\WooCommerce\\Orders\:\:status\(\) has parameter \$order with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Orders.php
+
+		-
+			message: '#^Parameter \#4 \$sku of class Omnitrade\\Model\\Line constructor expects string\|null, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Orders.php
+
+		-
+			message: '#^Parameter \$city of class Omnitrade\\Model\\Customer constructor expects string\|null, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Orders.php
+
+		-
+			message: '#^Parameter \$country of class Omnitrade\\Model\\Customer constructor expects string\|null, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Orders.php
+
+		-
+			message: '#^Parameter \$email of class Omnitrade\\Model\\Customer constructor expects string\|null, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Orders.php
+
+		-
+			message: '#^Parameter \$financialStatus of class Omnitrade\\Model\\PlatformOrder constructor expects string\|null, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Orders.php
+
+		-
+			message: '#^Parameter \$message of class Omnitrade\\Model\\Transaction constructor expects string\|null, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Orders.php
+
+		-
+			message: '#^Parameter \$method of class Omnitrade\\Model\\Transaction constructor expects string\|null, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Orders.php
+
+		-
+			message: '#^Parameter \$phone of class Omnitrade\\Model\\Customer constructor expects string\|null, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Orders.php
+
+		-
+			message: '#^Parameter \$postalCode of class Omnitrade\\Model\\Customer constructor expects string\|null, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Orders.php
+
+		-
+			message: '#^Parameter \$redirectUrl of class Omnitrade\\Model\\Transaction constructor expects string\|null, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Orders.php
+
+		-
+			message: '#^Parameter \$street of class Omnitrade\\Model\\Customer constructor expects list\<string\>, list\{0\?\: mixed, 1\?\: mixed\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Orders.php
+
+		-
+			message: '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\.$#'
+			identifier: foreach.nonIterable
+			count: 4
+			path: Products.php
+
+		-
+			message: '#^Cannot access offset ''name'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 3
+			path: Products.php
+
+		-
+			message: '#^Cannot access offset ''option'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: Products.php
+
+		-
+			message: '#^Cannot access offset ''options'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: Products.php
+
+		-
+			message: '#^Cannot access offset ''variation'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: Products.php
+
+		-
+			message: '#^Cannot cast mixed to int\.$#'
+			identifier: cast.int
+			count: 2
+			path: Products.php
+
+		-
+			message: '#^Cannot cast mixed to string\.$#'
+			identifier: cast.string
+			count: 17
+			path: Products.php
+
+		-
+			message: '#^Method Omnitrade\\WooCommerce\\Products\:\:image\(\) has parameter \$image with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Products.php
+
+		-
+			message: '#^Method Omnitrade\\WooCommerce\\Products\:\:isBrand\(\) has parameter \$attribute with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Products.php
+
+		-
+			message: '#^Method Omnitrade\\WooCommerce\\Products\:\:names\(\) has parameter \$terms with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Products.php
+
+		-
+			message: '#^Method Omnitrade\\WooCommerce\\Products\:\:offers\(\) has parameter \$item with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Products.php
+
+		-
+			message: '#^Method Omnitrade\\WooCommerce\\Products\:\:stock\(\) has parameter \$item with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Products.php
+
+		-
+			message: '#^Method Omnitrade\\WooCommerce\\Products\:\:variant\(\) has parameter \$item with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Products.php
+
+		-
+			message: '#^Parameter \#1 \$attribute of static method Omnitrade\\WooCommerce\\Products\:\:isBrand\(\) expects array, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Products.php
+
+		-
+			message: '#^Parameter \#1 \$image of static method Omnitrade\\WooCommerce\\Products\:\:image\(\) expects array, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Products.php
+
+		-
+			message: '#^Parameter \#1 \$terms of static method Omnitrade\\WooCommerce\\Products\:\:names\(\) expects array, mixed given\.$#'
+			identifier: argument.type
+			count: 2
+			path: Products.php
+
+		-
+			message: '#^Binary operation "\+" between mixed and array\{parent_id\: 600\} results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: Tests/WooCommerceCatalogueTest.php
+
+		-
+			message: '#^Cannot access property \$amount on Omnitrade\\Model\\Money\|null\.$#'
+			identifier: property.nonObject
+			count: 5
+			path: Tests/WooCommerceCatalogueTest.php
+
+		-
+			message: '#^Cannot access property \$attributes on Omnitrade\\Model\\Product\|null\.$#'
+			identifier: property.nonObject
+			count: 2
+			path: Tests/WooCommerceCatalogueTest.php
+
+		-
+			message: '#^Cannot access property \$available on Omnitrade\\Model\\Offer\|null\.$#'
+			identifier: property.nonObject
+			count: 2
+			path: Tests/WooCommerceCatalogueTest.php
+
+		-
+			message: '#^Cannot access property \$brand on Omnitrade\\Model\\Product\|null\.$#'
+			identifier: property.nonObject
+			count: 3
+			path: Tests/WooCommerceCatalogueTest.php
+
+		-
+			message: '#^Cannot access property \$categories on Omnitrade\\Model\\Product\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: Tests/WooCommerceCatalogueTest.php
+
+		-
+			message: '#^Cannot access property \$compareAt on Omnitrade\\Model\\Offer\|null\.$#'
+			identifier: property.nonObject
+			count: 2
+			path: Tests/WooCommerceCatalogueTest.php
+
+		-
+			message: '#^Cannot access property \$currency on Omnitrade\\Model\\Money\|null\.$#'
+			identifier: property.nonObject
+			count: 2
+			path: Tests/WooCommerceCatalogueTest.php
+
+		-
+			message: '#^Cannot access property \$description on Omnitrade\\Model\\Product\|null\.$#'
+			identifier: property.nonObject
+			count: 2
+			path: Tests/WooCommerceCatalogueTest.php
+
+		-
+			message: '#^Cannot access property \$handle on Omnitrade\\Model\\Product\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: Tests/WooCommerceCatalogueTest.php
+
+		-
+			message: '#^Cannot access property \$media on Omnitrade\\Model\\Product\|null\.$#'
+			identifier: property.nonObject
+			count: 2
+			path: Tests/WooCommerceCatalogueTest.php
+
+		-
+			message: '#^Cannot access property \$options on Omnitrade\\Model\\Product\|null\.$#'
+			identifier: property.nonObject
+			count: 3
+			path: Tests/WooCommerceCatalogueTest.php
+
+		-
+			message: '#^Cannot access property \$provider on Omnitrade\\Model\\Product\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: Tests/WooCommerceCatalogueTest.php
+
+		-
+			message: '#^Cannot access property \$quantity on Omnitrade\\Model\\Stock\|null\.$#'
+			identifier: property.nonObject
+			count: 3
+			path: Tests/WooCommerceCatalogueTest.php
+
+		-
+			message: '#^Cannot access property \$reference on Omnitrade\\Model\\Product\|null\.$#'
+			identifier: property.nonObject
+			count: 5
+			path: Tests/WooCommerceCatalogueTest.php
+
+		-
+			message: '#^Cannot access property \$status on Omnitrade\\Model\\Product\|null\.$#'
+			identifier: property.nonObject
+			count: 2
+			path: Tests/WooCommerceCatalogueTest.php
+
+		-
+			message: '#^Cannot access property \$tags on Omnitrade\\Model\\Product\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: Tests/WooCommerceCatalogueTest.php
+
+		-
+			message: '#^Cannot access property \$tracked on Omnitrade\\Model\\Stock\|null\.$#'
+			identifier: property.nonObject
+			count: 3
+			path: Tests/WooCommerceCatalogueTest.php
+
+		-
+			message: '#^Cannot access property \$updatedAt on Omnitrade\\Model\\Product\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: Tests/WooCommerceCatalogueTest.php
+
+		-
+			message: '#^Cannot access property \$url on Omnitrade\\Model\\Media\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: Tests/WooCommerceCatalogueTest.php
+
+		-
+			message: '#^Cannot access property \$url on Omnitrade\\Model\\Product\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: Tests/WooCommerceCatalogueTest.php
+
+		-
+			message: '#^Cannot access property \$variants on Omnitrade\\Model\\Product\|null\.$#'
+			identifier: property.nonObject
+			count: 4
+			path: Tests/WooCommerceCatalogueTest.php
+
+		-
+			message: '#^Cannot call method price\(\) on Omnitrade\\Model\\Product\|null\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: Tests/WooCommerceCatalogueTest.php
+
+		-
+			message: '#^Cannot cast mixed to string\.$#'
+			identifier: cast.string
+			count: 1
+			path: Tests/WooCommerceCatalogueTest.php
+
+		-
+			message: '#^Method Omnitrade\\WooCommerce\\Tests\\WooCommerceCatalogueTest\:\:fixture\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Tests/WooCommerceCatalogueTest.php
+
+		-
+			message: '#^Method Omnitrade\\WooCommerce\\Tests\\WooCommerceCatalogueTest\:\:fixture\(\) should return array but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: Tests/WooCommerceCatalogueTest.php
+
+		-
+			message: '#^Method Omnitrade\\WooCommerce\\Tests\\WooCommerceCatalogueTest\:\:gateway\(\) has parameter \$options with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Tests/WooCommerceCatalogueTest.php
+
+		-
+			message: '#^Parameter \#1 \$body of class Symfony\\Component\\HttpClient\\Response\\MockResponse constructor expects iterable\<string\|Throwable\>\|string, string\|false given\.$#'
+			identifier: argument.type
+			count: 2
+			path: Tests/WooCommerceCatalogueTest.php
+
+		-
+			message: '#^Parameter \#1 \$options of method Omnitrade\\GatewayFactory\:\:create\(\) expects array\<string, mixed\>, array given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Tests/WooCommerceCatalogueTest.php
+
+		-
+			message: '#^Parameter \#2 \$haystack of static method PHPUnit\\Framework\\Assert\:\:assertContains\(\) expects iterable, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Tests/WooCommerceCatalogueTest.php
+
+		-
+			message: '#^Parameter \#2 \$string of function explode expects string, array\<mixed\>\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Tests/WooCommerceCatalogueTest.php
+
+		-
+			message: '#^Property Omnitrade\\WooCommerce\\Tests\\WooCommerceCatalogueTest\:\:\$calls \(list\<array\{string, string, array\<string, string\>\}\>\) does not accept non\-empty\-list\<array\{string, string, array\<int\|string, array\<mixed\>\|string\>\}\>\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: Tests/WooCommerceCatalogueTest.php
+
+		-
+			message: '#^Method Omnitrade\\WooCommerce\\Tests\\WooCommerceContractTest\:\:order\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Tests/WooCommerceContractTest.php
+
+		-
+			message: '#^Method Omnitrade\\WooCommerce\\Tests\\WooCommerceContractTest\:\:recordedAnswers\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Tests/WooCommerceContractTest.php
+
+		-
+			message: '#^Method Omnitrade\\WooCommerce\\Tests\\WooCommerceContractTest\:\:signedNotification\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: Tests/WooCommerceContractTest.php
+
+		-
+			message: '#^Method Omnitrade\\WooCommerce\\Tests\\WooCommerceContractTest\:\:signedNotification\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Tests/WooCommerceContractTest.php
+
+		-
+			message: '#^Parameter \#1 \$body of class Symfony\\Component\\HttpClient\\Response\\MockResponse constructor expects iterable\<string\|Throwable\>\|string, string\|false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Tests/WooCommerceContractTest.php
+
+		-
+			message: '#^Parameter \#1 \$body of static method Omnitrade\\WooCommerce\\Api\:\:sign\(\) expects string, string\|false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Tests/WooCommerceContractTest.php
+
+		-
+			message: '#^Cannot access offset ''email'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: Tests/WooCommerceGatewayTest.php
+
+		-
+			message: '#^Cannot access offset ''last_name'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: Tests/WooCommerceGatewayTest.php
+
+		-
+			message: '#^Cannot access offset ''reason'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: Tests/WooCommerceGatewayTest.php
+
+		-
+			message: '#^Cannot access offset ''total'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: Tests/WooCommerceGatewayTest.php
+
+		-
+			message: '#^Cannot access offset 0 on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: Tests/WooCommerceGatewayTest.php
+
+		-
+			message: '#^Cannot access property \$name on Omnitrade\\Model\\Customer\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: Tests/WooCommerceGatewayTest.php
+
+		-
+			message: '#^Method Omnitrade\\WooCommerce\\Tests\\WooCommerceGatewayTest\:\:order\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Tests/WooCommerceGatewayTest.php
+
+		-
+			message: '#^Parameter \#1 \$body of class Symfony\\Component\\HttpClient\\Response\\MockResponse constructor expects iterable\<string\|Throwable\>\|string, string\|false given\.$#'
+			identifier: argument.type
+			count: 6
+			path: Tests/WooCommerceGatewayTest.php
+
+		-
+			message: '#^Parameter \#1 \$body of method Omnitrade\\GatewayInterface\:\:notify\(\) expects string, string\|false given\.$#'
+			identifier: argument.type
+			count: 2
+			path: Tests/WooCommerceGatewayTest.php
+
+		-
+			message: '#^Parameter \#1 \$body of static method Omnitrade\\WooCommerce\\Api\:\:sign\(\) expects string, string\|false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Tests/WooCommerceGatewayTest.php
+
+		-
+			message: '#^Parameter \#2 \$haystack of static method PHPUnit\\Framework\\Assert\:\:assertContains\(\) expects iterable, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Tests/WooCommerceGatewayTest.php
+
+		-
+			message: '#^Parameter \#2 \$haystack of static method PHPUnit\\Framework\\Assert\:\:assertStringContainsString\(\) expects string, string\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Tests/WooCommerceGatewayTest.php
+
+		-
+			message: '#^Property Omnitrade\\WooCommerce\\Tests\\WooCommerceGatewayTest\:\:\$calls type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Tests/WooCommerceGatewayTest.php
+
+		-
+			message: '#^Property Omnitrade\\WooCommerce\\Tests\\WooCommerceTagsTest\:\:\$calls \(list\<array\{string, string, array\<string, mixed\>\}\>\) does not accept non\-empty\-list\<array\{string, string, array\<mixed\>\}\>\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: Tests/WooCommerceTagsTest.php
+
+		-
+			message: '#^Cannot cast mixed to int\.$#'
+			identifier: cast.int
+			count: 1
+			path: WooCommerceGatewayFactory.php
+
+		-
+			message: '#^Cannot cast mixed to string\.$#'
+			identifier: cast.string
+			count: 10
+			path: WooCommerceGatewayFactory.php
+
+		-
+			message: '#^Parameter \#5 \$webhookSecret of class Omnitrade\\WooCommerce\\Api constructor expects string\|null, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: WooCommerceGatewayFactory.php

@@ -2,9 +2,11 @@
 
 namespace Omnitrade\WooCommerce;
 
+use Omnisense\Contracts\Policy\Backoff;
 use Omnitrade\Exception\InvalidNotificationException;
 use Omnitrade\Exception\ProviderException;
 use Omnitrade\Http\Redaction;
+use Omnitrade\Http\Throttle;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface as HttpExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -22,6 +24,8 @@ final class Api
         private readonly string $consumerSecret,
         private readonly ?string $webhookSecret = null,
         private readonly int $timeout = 15,
+        /** The waits the shop asks for (a 429's Retry-After, from its host): no call while one lasts, never retried */
+        private readonly ?Backoff $backoff = null,
     ) {
     }
 
@@ -82,6 +86,7 @@ final class Api
     /** @return array{0: array<mixed>, 1: array<string, list<string>>} the JSON answer and the headers */
     private function send(string $method, string $path, ?array $body, array $query): array
     {
+        Throttle::before($this->backoff);
         try {
             $response = $this->http->request($method, $this->url().'/wp-json/wc/v3/'.ltrim($path, '/'), [
                 'auth_basic' => [$this->consumerKey, $this->consumerSecret],
@@ -99,6 +104,7 @@ final class Api
             throw Redaction::withoutArguments(new ProviderException('woocommerce', 'WooCommerce request failed: '.Redaction::text($e->getMessage(), $secrets), null, Redaction::copy($e, $secrets)));
         }
         $data = '' === $content ? [] : json_decode($content, true);
+        Throttle::after($this->backoff, 'woocommerce', $status, $headers, \is_array($data) && isset($data['message']) && \is_string($data['message']) ? 'WooCommerce answered 429: '.$data['message'] : '');
         if (!\is_array($data)) {
             throw Redaction::withoutArguments(new ProviderException('woocommerce', sprintf('WooCommerce answered HTTP %d with a body that is not JSON.', $status)));
         }

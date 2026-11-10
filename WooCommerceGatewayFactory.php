@@ -39,6 +39,7 @@ final class WooCommerceGatewayFactory extends GatewayFactory
             'omnitrade.factory_name' => 'woocommerce',
             'omnitrade.factory_title' => 'WooCommerce',
             'omnitrade.required_options' => ['url', 'consumer_key', 'consumer_secret'],
+            'omnitrade.policy' => __DIR__.'/policy.json',
             'webhook_secret' => null,
             'timeout' => 15,
             'currency' => 'EUR',
@@ -47,7 +48,7 @@ final class WooCommerceGatewayFactory extends GatewayFactory
             'omnitrade.api' => function (Config $c) {
                 $http = $this->http ?? HttpClient::create();
 
-                return new Api($http, (string) $c['url'], (string) $c['consumer_key'], (string) $c['consumer_secret'], $c['webhook_secret'] ?: null, (int) $c['timeout']);
+                return new Api($http, (string) $c['url'], (string) $c['consumer_key'], (string) $c['consumer_secret'], $c['webhook_secret'] ?: null, (int) $c['timeout'], $c->backoff());
             },
             'omnitrade.action.purchase' => new PurchaseAction(),
             'omnitrade.action.fetch' => new FetchTransactionAction(),

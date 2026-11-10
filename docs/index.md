@@ -204,6 +204,14 @@ A WooCommerce catalogue copied page by page, offline, with its output, is in the
 Docker harness: `docker compose run --rm omnitrade purchase woocommerce --amount 1990`, `catalogue
 woocommerce --inventory`.
 
+## Usage policy
+
+`policy.json` (named in `composer.json`'s `extra.omnisense.policy`) declares no rate limit: the
+REST API has none of its own. The shop's host may set one, and a site adds it as a tightening. A
+429 from that host is a `RateLimitedException`, never retried, and the next calls wait for its
+`Retry-After`, unsent. WooCommerce has no idempotency key: an order created twice is two orders.
+See omnisense/omnitrade's [Usage policies and rate limits](https://github.com/glitchr-omnisense/omnitrade/blob/1.x/docs/policies.md).
+
 ## Errors
 
 Every failure is an `Omnitrade\Exception\ProviderException` whose `provider` is `woocommerce`:

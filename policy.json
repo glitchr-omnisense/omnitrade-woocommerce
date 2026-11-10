@@ -1,0 +1,38 @@
+{
+    "$schema": "https://github.com/glitchr-omnisense/contracts/blob/1.x/resources/usage-policy.schema.json",
+    "provider": "woocommerce",
+    "rateLimits": [],
+    "concurrency": null,
+    "rights": {
+        "commercial": "allowed",
+        "openSourceRequired": false,
+        "caching": {
+            "permission": "allowed",
+            "maxTtl": null
+        },
+        "storage": "allowed",
+        "redistribution": "unknown",
+        "attribution": {
+            "required": false,
+            "text": null,
+            "url": null,
+            "where": []
+        },
+        "licence": null
+    },
+    "requirements": {
+        "key": true,
+        "userAgent": {
+            "required": false,
+            "pattern": null
+        }
+    },
+    "provenance": {
+        "terms": "https://woocommerce.com/document/woocommerce-rest-api/",
+        "policy": "https://woocommerce.github.io/woocommerce-rest-api-docs/",
+        "verifiedAt": "2026-11-10",
+        "declaredBy": "maintainer",
+        "contact": null,
+        "notes": "The REST API (wc/v3) sets no rate limit of its own: the shop is the merchant's own WordPress, and its host (a firewall, a security plugin, the hosting company) may limit it - a site adds that as its own tightening. WooCommerce's Store API rate limiting is opt-in and applies to the Store API only, which this provider does not call. The shop's data is the merchant's: redistribution depends on them."
+    }
+}
