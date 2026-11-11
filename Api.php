@@ -36,6 +36,7 @@ final class Api
 
     /**
      * @param array<string, mixed>|null $body
+     * @param array<string, mixed>      $query
      *
      * @return array<mixed> the JSON answer
      *
@@ -50,6 +51,8 @@ final class Api
      * A GET of a collection, with how many pages it has (X-WP-TotalPages;
      * null when the shop does not say).
      *
+     * @param array<string, mixed> $query
+     *
      * @return array{0: list<array<string, mixed>>, 1: ?int}
      *
      * @throws ProviderException
@@ -59,11 +62,13 @@ final class Api
         [$data, $headers] = $this->send('GET', $path, null, $query);
         $pages = $headers['x-wp-totalpages'][0] ?? null;
 
-        return [array_values($data), null === $pages || '' === $pages ? null : (int) $pages];
+        return [Data::maps($data), null === $pages || '' === $pages ? null : (int) $pages];
     }
 
     /**
      * Every page of a collection, 100 at a time.
+     *
+     * @param array<string, mixed> $query
      *
      * @return list<array<string, mixed>>
      *
@@ -83,7 +88,12 @@ final class Api
         return $all;
     }
 
-    /** @return array{0: array<mixed>, 1: array<string, list<string>>} the JSON answer and the headers */
+    /**
+     * @param array<string, mixed>|null $body
+     * @param array<string, mixed>      $query
+     *
+     * @return array{0: array<mixed>, 1: array<string, list<string>>} the JSON answer and the headers
+     */
     private function send(string $method, string $path, ?array $body, array $query): array
     {
         Throttle::before($this->backoff);
@@ -109,7 +119,7 @@ final class Api
             throw Redaction::withoutArguments(new ProviderException('woocommerce', sprintf('WooCommerce answered HTTP %d with a body that is not JSON.', $status)));
         }
         if ($status >= 400) {
-            throw Redaction::withoutArguments(new ProviderException('woocommerce', (string) ($data['message'] ?? sprintf('HTTP %d', $status)), isset($data['code']) ? (string) $data['code'] : null));
+            throw Redaction::withoutArguments(new ProviderException('woocommerce', Data::cast($data['message'] ?? sprintf('HTTP %d', $status)), Data::castOrNull($data['code'] ?? null)));
         }
 
         return [$data, $headers];
@@ -144,6 +154,6 @@ final class Api
      */
     private function secrets(string ...$more): array
     {
-        return [$this->consumerKey, $this->consumerSecret, (string) $this->webhookSecret, ...$more];
+        return [$this->consumerKey, $this->consumerSecret, (string) $this->webhookSecret, ...array_values($more)];
     }
 }

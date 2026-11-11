@@ -26,19 +26,20 @@ final class Products
      */
     public static function product(array $product, array $variations, string $currency, string $weightUnit = 'kg'): Product
     {
+        $read = Data::of($product);
         $url = self::blankToNull($product['permalink'] ?? null);
         $status = self::status($product['status'] ?? null);
 
         $attributes = [];
         $options = [];
         $brand = null;
-        foreach ($product['attributes'] ?? [] as $attribute) {
-            $name = trim((string) ($attribute['name'] ?? ''));
-            $values = array_values(array_filter(array_map(static fn ($v) => trim((string) $v), (array) ($attribute['options'] ?? [])), static fn (string $v) => '' !== $v));
+        foreach ($read->each('attributes') as $attribute) {
+            $name = trim($attribute->text('name'));
+            $values = array_values(array_filter(array_map(static fn (string $v) => trim($v), Data::texts($attribute->get('options') ?? [])), static fn (string $v) => '' !== $v));
             if ('' === $name || !$values) {
                 continue;
             }
-            if (!empty($attribute['variation']) && 'variable' === ($product['type'] ?? null)) {
+            if (!empty($attribute->get('variation')) && 'variable' === ($product['type'] ?? null)) {
                 $options[] = new Option($name, $values);
                 continue;
             }
@@ -48,15 +49,15 @@ final class Products
             }
         }
         // WooCommerce 9.6+ has brands of its own, a taxonomy like the categories.
-        foreach ($product['brands'] ?? [] as $term) {
-            if ('' !== $name = trim((string) ($term['name'] ?? ''))) {
+        foreach ($read->each('brands') as $term) {
+            if ('' !== $name = trim($term->text('name'))) {
                 $brand = $name;
                 break;
             }
         }
 
         $media = [];
-        foreach ($product['images'] ?? [] as $image) {
+        foreach ($read->each('images') as $image) {
             if (null !== $m = self::image($image)) {
                 $media[] = $m;
             }
@@ -70,15 +71,15 @@ final class Products
 
         return new Product(
             provider: 'woocommerce',
-            reference: (string) ($product['id'] ?? ''),
-            title: html_entity_decode((string) ($product['name'] ?? ''), \ENT_QUOTES | \ENT_HTML5, 'UTF-8'),
+            reference: $read->text('id'),
+            title: html_entity_decode($read->text('name'), \ENT_QUOTES | \ENT_HTML5, 'UTF-8'),
             description: self::blankToNull($product['description'] ?? null) ?? self::blankToNull($product['short_description'] ?? null),
             handle: self::blankToNull($product['slug'] ?? null),
             brand: $brand,
             url: $url,
             status: $status,
-            tags: self::names($product['tags'] ?? []),
-            categories: self::names($product['categories'] ?? []),
+            tags: self::names((array) ($product['tags'] ?? [])),
+            categories: self::names((array) ($product['categories'] ?? [])),
             attributes: $attributes,
             options: $options,
             variants: $variants,
@@ -93,7 +94,8 @@ final class Products
      * stock (a variation saying "parent" counts on its product's), else a
      * null quantity.
      *
-     * @param array<string, mixed>|null $parent the variation's product, for "parent"
+     * @param array<mixed>      $item
+     * @param array<mixed>|null $parent the variation's product, for "parent"
      */
     public static function stock(array $item, ?array $parent = null): Stock
     {
@@ -106,8 +108,8 @@ final class Products
         $tracked = true === $manage || 1 === $manage || '1' === $manage;
 
         return new Stock(
-            (string) ($item['id'] ?? ''),
-            $tracked ? (int) ($quantity ?? 0) : null,
+            Data::cast($item['id'] ?? ''),
+            $tracked ? Data::integer($quantity ?? 0) : null,
             $tracked,
             self::blankToNull($item['sku'] ?? null),
         );
@@ -116,21 +118,24 @@ final class Products
     /** publish → active; draft, pending, private, future → draft; trash → archived. */
     public static function status(mixed $status): string
     {
-        return match ((string) $status) {
+        return match (Data::cast($status)) {
             'publish', '' => Product::ACTIVE,
             'trash' => Product::ARCHIVED,
             default => Product::DRAFT,
         };
     }
 
-    /** @param array<string, mixed> $product the product the variation is of (itself, for a simple one) */
+    /**
+     * @param array<mixed>         $item
+     * @param array<string, mixed> $product the product the variation is of (itself, for a simple one)
+     */
     private static function variant(array $item, string $currency, string $weightUnit, ?string $productUrl, array $product, bool $isVariation): ProductVariant
     {
         $options = [];
         if ($isVariation) {
-            foreach ($item['attributes'] ?? [] as $attribute) {
-                $name = trim((string) ($attribute['name'] ?? ''));
-                $value = trim((string) ($attribute['option'] ?? ''));
+            foreach (Data::of($item)->each('attributes') as $attribute) {
+                $name = trim($attribute->text('name'));
+                $value = trim($attribute->text('option'));
                 if ('' !== $name && '' !== $value) { // '' is "any": not a choice of its own
                     $options[$name] = $value;
                 }
@@ -143,14 +148,14 @@ final class Products
             && (!$isVariation || 'publish' === ($item['status'] ?? 'publish'));
 
         return new ProductVariant(
-            reference: (string) ($item['id'] ?? ''),
+            reference: Data::cast($item['id'] ?? ''),
             title: $options ? implode(' / ', $options) : null,
             sku: self::blankToNull($item['sku'] ?? null),
             barcode: self::blankToNull($item['global_unique_id'] ?? null),
             offers: self::offers($item, $currency, $available, $isVariation ? (self::blankToNull($item['permalink'] ?? null) ?? $productUrl) : $productUrl),
             options: $options,
             stock: $stock,
-            image: $isVariation && \is_array($item['image'] ?? null) ? self::image($item['image']) : null,
+            image: $isVariation && \is_array($item['image'] ?? null) ? self::image(Data::of($item['image'])) : null,
             weight: self::grams($item['weight'] ?? null, $weightUnit),
             raw: $isVariation ? $item : [],
         );
@@ -159,6 +164,8 @@ final class Products
     /**
      * regular_price, and sale_price when it is on sale: the price is then the
      * sale price, the regular one struck through.
+     *
+     * @param array<mixed> $item
      *
      * @return list<Offer>
      */
@@ -181,25 +188,29 @@ final class Products
     }
 
     /** A "Brand" (or "Marque") attribute, global (pa_brand) or the product's own. */
-    private static function isBrand(array $attribute): bool
+    private static function isBrand(Data $attribute): bool
     {
-        $slug = strtolower((string) ($attribute['slug'] ?? ''));
-        $name = strtolower(trim((string) ($attribute['name'] ?? '')));
+        $slug = strtolower($attribute->text('slug'));
+        $name = strtolower(trim($attribute->text('name')));
 
         return \in_array($slug, ['pa_brand', 'brand', 'pa_marque', 'marque'], true) || \in_array($name, ['brand', 'pa_brand', 'marque'], true);
     }
 
-    private static function image(array $image): ?Media
+    private static function image(Data $image): ?Media
     {
-        $src = self::blankToNull($image['src'] ?? null);
+        $src = self::blankToNull($image->get('src'));
 
-        return null === $src ? null : new Media($src, self::blankToNull($image['alt'] ?? null) ?? self::blankToNull($image['name'] ?? null), reference: isset($image['id']) && 0 !== (int) $image['id'] ? (string) $image['id'] : null);
+        return null === $src ? null : new Media($src, self::blankToNull($image->get('alt')) ?? self::blankToNull($image->get('name')), reference: $image->has('id') && 0 !== $image->number('id') ? $image->text('id') : null);
     }
 
-    /** @return list<string> the terms' names */
+    /**
+     * @param array<mixed> $terms
+     *
+     * @return list<string> the terms' names
+     */
     private static function names(array $terms): array
     {
-        $names = array_map(static fn ($t) => html_entity_decode(trim((string) (\is_array($t) ? ($t['name'] ?? '') : $t)), \ENT_QUOTES | \ENT_HTML5, 'UTF-8'), $terms);
+        $names = array_map(static fn (mixed $t) => html_entity_decode(trim(Data::cast(\is_array($t) ? ($t['name'] ?? '') : $t)), \ENT_QUOTES | \ENT_HTML5, 'UTF-8'), $terms);
 
         return array_values(array_unique(array_filter($names, static fn (string $n) => '' !== $n)));
     }
@@ -210,7 +221,7 @@ final class Products
             return null;
         }
 
-        return (int) round((float) $value * match (strtolower($unit)) {
+        return (int) round(Data::decimal($value) * match (strtolower($unit)) {
             'g' => 1,
             'lbs', 'lb' => 453.59237,
             'oz' => 28.349523125,
@@ -224,7 +235,7 @@ final class Products
             return null;
         }
         try {
-            return $gmt ? new \DateTimeImmutable((string) $value, new \DateTimeZone('UTC')) : new \DateTimeImmutable((string) $value);
+            return $gmt ? new \DateTimeImmutable(Data::cast($value), new \DateTimeZone('UTC')) : new \DateTimeImmutable(Data::cast($value));
         } catch (\Exception) {
             return null;
         }
@@ -232,7 +243,7 @@ final class Products
 
     private static function blankToNull(mixed $value): ?string
     {
-        $value = null === $value || \is_array($value) ? '' : trim((string) $value);
+        $value = trim(Data::cast($value));
 
         return '' === $value ? null : $value;
     }

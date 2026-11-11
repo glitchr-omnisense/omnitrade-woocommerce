@@ -10,6 +10,7 @@ use Omnitrade\Model\Reference;
 use Omnitrade\Request\FetchProduct;
 use Omnitrade\Request\Request;
 use Omnitrade\WooCommerce\Api;
+use Omnitrade\WooCommerce\Data;
 use Omnitrade\WooCommerce\Products;
 
 /**
@@ -43,7 +44,7 @@ final class FetchProductAction implements ActionInterface, ApiAwareInterface
         if (null !== $id) {
             $product = $this->byId($id);
             if (null !== $product && 'variation' === ($product['type'] ?? null) && !empty($product['parent_id'])) {
-                $product = $this->byId((string) $product['parent_id']);
+                $product = $this->byId(Data::cast($product['parent_id']));
             }
         } elseif (null !== $slug) {
             $product = $this->api->call('GET', 'products', null, ['slug' => $slug, 'status' => 'any'])[0] ?? null;
@@ -53,9 +54,9 @@ final class FetchProductAction implements ActionInterface, ApiAwareInterface
 
             return;
         }
-        $variations = 'variable' === ($product['type'] ?? null) ? $this->api->all('products/'.$product['id'].'/variations') : [];
+        $variations = 'variable' === ($product['type'] ?? null) ? $this->api->all('products/'.Data::cast($product['id']).'/variations') : [];
 
-        $request->setResult(Products::product($product, $variations, $this->currency, $this->weightUnit));
+        $request->setResult(Products::product(Data::map($product), $variations, $this->currency, $this->weightUnit));
     }
 
     /** @return array{0: ?string, 1: ?string} the id, or the slug */
@@ -80,6 +81,7 @@ final class FetchProductAction implements ActionInterface, ApiAwareInterface
         return [null, null === $slug || '' === $slug ? null : $slug];
     }
 
+    /** @return array<mixed>|null */
     private function byId(string $id): ?array
     {
         try {

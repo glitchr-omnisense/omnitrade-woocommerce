@@ -8,6 +8,7 @@ use Omnitrade\Model\Status;
 use Omnitrade\Request\Authorize;
 use Omnitrade\Tests\Fixtures;
 use Omnitrade\WooCommerce\Api;
+use Omnitrade\WooCommerce\Data;
 use Omnitrade\WooCommerce\WooCommerceGatewayFactory;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpClient\MockHttpClient;
@@ -17,25 +18,25 @@ final class WooCommerceGatewayTest extends TestCase
 {
     private const SECRET = 'wc-secret';
 
-    /** @var list<array{string, string, array}> */
+    /** @var list<array{string, string, array<mixed>}> */
     private array $calls = [];
 
     private function gateway(): \Omnitrade\GatewayInterface
     {
         $http = new MockHttpClient(function (string $method, string $url, array $options): MockResponse {
             self::assertStringStartsWith('https://shop.example/wp-json/wc/v3/', $url);
-            self::assertContains('Authorization: Basic '.base64_encode('ck_x:cs_x'), $options['headers'], 'the key and secret as basic auth');
+            self::assertContains('Authorization: Basic '.base64_encode('ck_x:cs_x'), Data::texts($options['headers'] ?? []), 'the key and secret as basic auth');
             $path = substr((string) parse_url($url, \PHP_URL_PATH), \strlen('/wp-json/wc/v3/'));
             $sent = \is_string($options['body'] ?? null) && '' !== $options['body'] ? json_decode($options['body'], true) : [];
             $this->calls[] = [$method, $path, \is_array($sent) ? $sent : []];
 
             return match (true) {
-                'POST' === $method && 'orders' === $path => new MockResponse(json_encode(self::order('pending') + ['payment_url' => 'https://shop.example/checkout/order-pay/1042/?pay_for_order=true&key=wc_order_abc'])),
-                'GET' === $method && 'orders/1042' === $path => new MockResponse(json_encode(self::order('processing'))),
-                'GET' === $method && 'orders/1043' === $path => new MockResponse(json_encode(self::order('failed'))),
-                'POST' === $method && 'orders/1042/refunds' === $path => new MockResponse(json_encode(['id' => 77, 'amount' => '5.00', 'reason' => $sent['reason'] ?? ''])),
-                'GET' === $method && 'payment_gateways' === $path => new MockResponse(json_encode([['id' => 'stripe', 'title' => 'Credit card', 'enabled' => true], ['id' => 'bacs', 'title' => 'Bank transfer', 'enabled' => true], ['id' => 'cheque', 'title' => 'Cheque', 'enabled' => false]])),
-                default => new MockResponse(json_encode(['code' => 'woocommerce_rest_shop_order_invalid_id', 'message' => 'Invalid ID.']), ['http_code' => 404]),
+                'POST' === $method && 'orders' === $path => new MockResponse(json_encode(self::order('pending') + ['payment_url' => 'https://shop.example/checkout/order-pay/1042/?pay_for_order=true&key=wc_order_abc'], \JSON_THROW_ON_ERROR)),
+                'GET' === $method && 'orders/1042' === $path => new MockResponse(json_encode(self::order('processing'), \JSON_THROW_ON_ERROR)),
+                'GET' === $method && 'orders/1043' === $path => new MockResponse(json_encode(self::order('failed'), \JSON_THROW_ON_ERROR)),
+                'POST' === $method && 'orders/1042/refunds' === $path => new MockResponse(json_encode(['id' => 77, 'amount' => '5.00', 'reason' => Data::of($sent)->get('reason') ?? ''], \JSON_THROW_ON_ERROR)),
+                'GET' === $method && 'payment_gateways' === $path => new MockResponse(json_encode([['id' => 'stripe', 'title' => 'Credit card', 'enabled' => true], ['id' => 'bacs', 'title' => 'Bank transfer', 'enabled' => true], ['id' => 'cheque', 'title' => 'Cheque', 'enabled' => false]], \JSON_THROW_ON_ERROR)),
+                default => new MockResponse(json_encode(['code' => 'woocommerce_rest_shop_order_invalid_id', 'message' => 'Invalid ID.'], \JSON_THROW_ON_ERROR), ['http_code' => 404]),
             };
         });
 
@@ -49,14 +50,14 @@ final class WooCommerceGatewayTest extends TestCase
 
         self::assertTrue($transaction->isRedirect());
         self::assertSame('1042', $transaction->reference);
-        self::assertStringContainsString('order-pay/1042', $transaction->redirectUrl);
+        self::assertStringContainsString('order-pay/1042', (string) $transaction->redirectUrl);
         [, , $sent] = $this->calls[0];
         self::assertSame('pending', $sent['status']);
         self::assertFalse($sent['set_paid']);
-        self::assertSame('12.50', $sent['line_items'][0]['total']);
+        self::assertSame('12.50', Data::of($sent)->get('line_items.0.total'));
         self::assertSame([['key' => 'omnitrade_reference', 'value' => 'ORDER-1042']], $sent['meta_data']);
-        self::assertSame('camille@example.org', $sent['billing']['email']);
-        self::assertSame('Durand', $sent['billing']['last_name']);
+        self::assertSame('camille@example.org', Data::of($sent)->get('billing.email'));
+        self::assertSame('Durand', Data::of($sent)->get('billing.last_name'));
         self::assertFalse($gateway->supports(Authorize::class));
     }
 
@@ -68,7 +69,7 @@ final class WooCommerceGatewayTest extends TestCase
         $order = $gateway->fetchOrder('1042');
         self::assertSame('#1042', $order->number);
         self::assertSame(1250, $order->total->amount);
-        self::assertSame('Camille Durand', $order->customer->name);
+        self::assertSame('Camille Durand', $order->customer?->name);
         self::assertSame('55', $order->lines[0]->reference);
     }
 
@@ -88,7 +89,7 @@ final class WooCommerceGatewayTest extends TestCase
     public function testANotificationIsCheckedThenRead(): void
     {
         $gateway = $this->gateway();
-        $body = json_encode(self::order('processing'));
+        $body = json_encode(self::order('processing'), \JSON_THROW_ON_ERROR);
         $headers = ['X-WC-Webhook-Signature' => Api::sign($body, self::SECRET), 'X-WC-Webhook-Topic' => 'order.updated', 'X-WC-Webhook-Delivery-ID' => 'd-1'];
 
         $notification = $gateway->notify($body, $headers);
@@ -101,6 +102,7 @@ final class WooCommerceGatewayTest extends TestCase
         $gateway->notify($body, ['X-WC-Webhook-Signature' => 'nope', 'X-WC-Webhook-Topic' => 'order.updated']);
     }
 
+    /** @return array<string, mixed> */
     private static function order(string $status): array
     {
         return ['id' => 1042, 'number' => '1042', 'status' => $status, 'currency' => 'EUR', 'total' => '12.50', 'payment_method' => 'stripe', 'order_key' => 'wc_order_abc', 'date_created_gmt' => '2026-10-01T10:00:00',

@@ -9,6 +9,7 @@ use Omnitrade\Model\PaymentMethod;
 use Omnitrade\Request\GetPaymentMethods;
 use Omnitrade\Request\Request;
 use Omnitrade\WooCommerce\Api;
+use Omnitrade\WooCommerce\Data;
 
 /** The shop's payment gateways switched on (GET payment_gateways). */
 final class GetPaymentMethodsAction implements ActionInterface, ApiAwareInterface
@@ -34,8 +35,8 @@ final class GetPaymentMethodsAction implements ActionInterface, ApiAwareInterfac
             if (!\is_array($gateway) || empty($gateway['enabled'])) {
                 continue;
             }
-            $id = (string) ($gateway['id'] ?? '');
-            $methods[] = new PaymentMethod($id, (string) ($gateway['title'] ?? $id), match (true) {
+            $id = Data::cast($gateway['id'] ?? '');
+            $methods[] = new PaymentMethod($id, Data::cast($gateway['title'] ?? $id), match (true) {
                 str_contains($id, 'stripe'), str_contains($id, 'card') => PaymentMethod::CARD,
                 str_contains($id, 'paypal'), str_contains($id, 'apple'), str_contains($id, 'google') => PaymentMethod::WALLET,
                 str_contains($id, 'bacs'), str_contains($id, 'sepa'), str_contains($id, 'bank') => PaymentMethod::BANK,

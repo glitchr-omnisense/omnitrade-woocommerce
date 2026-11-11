@@ -10,6 +10,7 @@ use Omnitrade\Model\Notification;
 use Omnitrade\Request\Notify;
 use Omnitrade\Request\Request;
 use Omnitrade\WooCommerce\Api;
+use Omnitrade\WooCommerce\Data;
 use Omnitrade\WooCommerce\Orders;
 use Omnitrade\WooCommerce\Products;
 
@@ -50,18 +51,18 @@ final class NotifyAction implements ActionInterface, ApiAwareInterface
         }
         $topic = (string) $request->header('X-WC-Webhook-Topic');
         $isOrder = str_starts_with($topic, 'order.') && isset($payload['id']);
-        $reference = $isOrder ? (string) $payload['id'] : null;
+        $reference = $isOrder ? Data::cast($payload['id']) : null;
         $product = null;
         if (str_starts_with($topic, 'product.') && isset($payload['id'])) {
-            $reference = (string) $payload['id'];
+            $reference = Data::cast($payload['id']);
             if ('product.deleted' !== $topic) {
                 $item = $payload;
                 if ('variation' === ($item['type'] ?? null) && !empty($item['parent_id'])) {
-                    $item = $this->api->call('GET', 'products/'.$item['parent_id']);
-                    $reference = (string) $item['id'];
+                    $item = $this->api->call('GET', 'products/'.Data::cast($item['parent_id']));
+                    $reference = Data::cast($item['id'] ?? null);
                 }
-                $variations = 'variable' === ($item['type'] ?? null) ? $this->api->all('products/'.$item['id'].'/variations') : [];
-                $product = Products::product($item, $variations, $this->currency, $this->weightUnit);
+                $variations = 'variable' === ($item['type'] ?? null) ? $this->api->all('products/'.Data::cast($item['id'] ?? null).'/variations') : [];
+                $product = Products::product(Data::map($item), $variations, $this->currency, $this->weightUnit);
             }
         }
 
@@ -70,11 +71,11 @@ final class NotifyAction implements ActionInterface, ApiAwareInterface
             event: $topic,
             reference: $reference,
             status: $isOrder && 'order.deleted' !== $topic ? Orders::status($payload) : null,
-            transaction: $isOrder && 'order.deleted' !== $topic ? Orders::transaction($payload) : null,
+            transaction: $isOrder && 'order.deleted' !== $topic ? Orders::transaction(Data::map($payload)) : null,
             id: $request->header('X-WC-Webhook-Delivery-ID'),
             raw: ['topic' => $topic, 'resource' => $request->header('X-WC-Webhook-Resource'), 'event' => $request->header('X-WC-Webhook-Event'), 'payload' => $payload],
             product: $product,
-            tags: Orders::tags($payload),
+            tags: Orders::tags(Data::map($payload)),
         ));
     }
 }

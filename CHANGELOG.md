@@ -13,6 +13,12 @@
   (`Notification::$tags`, without the merchant's reference and the `_` fields). Tests on recorded
   requests (`WooCommerceTagsTest`).
 
+### Changed
+- PHPStan at level max with an empty baseline (237 errors that predated it): WooCommerce's answers
+  read through `Data` (internal: omnisense/contracts' `Http\Data` with reads that keep PHP's
+  `(string)` and `(int)` of a scalar), the arrays typed. Types only: no signature changed, no
+  behaviour either.
+
 ### Fixed
 - A `ProviderException` no longer carries the consumer key and secret. The message quoted the HTTP
   client's (the whole URL), the previous was the client's own exception, and every trace of the

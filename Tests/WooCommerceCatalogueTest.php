@@ -8,6 +8,7 @@ use Omnitrade\Request\FetchInventory;
 use Omnitrade\Request\FetchProduct;
 use Omnitrade\Request\FetchProducts;
 use Omnitrade\WooCommerce\Api;
+use Omnitrade\WooCommerce\Data;
 use Omnitrade\WooCommerce\WooCommerceGatewayFactory;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpClient\MockHttpClient;
@@ -17,34 +18,39 @@ final class WooCommerceCatalogueTest extends TestCase
 {
     private const SECRET = 'wc-secret';
 
-    /** @var list<array{string, string, array<string, string>}> method, path, query */
+    /** @var list<array{string, string, array<string, mixed>}> method, path, query */
     private array $calls = [];
 
+    /** @return array<mixed> */
     private static function fixture(string $name): array
     {
-        return json_decode((string) file_get_contents(__DIR__.'/Fixtures/'.$name), true, 512, \JSON_THROW_ON_ERROR);
+        $decoded = json_decode((string) file_get_contents(__DIR__.'/Fixtures/'.$name), true, 512, \JSON_THROW_ON_ERROR);
+        self::assertIsArray($decoded);
+
+        return $decoded;
     }
 
+    /** @param array<string, mixed> $options */
     private function gateway(array $options = []): GatewayInterface
     {
         $http = new MockHttpClient(function (string $method, string $url, array $options): MockResponse {
-            self::assertContains('Authorization: Basic '.base64_encode('ck_x:cs_x'), $options['headers']);
+            self::assertContains('Authorization: Basic '.base64_encode('ck_x:cs_x'), Data::texts($options['headers'] ?? []));
             $path = substr((string) parse_url($url, \PHP_URL_PATH), \strlen('/wp-json/wc/v3/'));
             parse_str((string) parse_url($url, \PHP_URL_QUERY), $query);
-            $this->calls[] = [$method, $path, $query];
+            $this->calls[] = [$method, $path, Data::map($query)];
             $simple = self::fixture('product.simple.json');
             $variable = self::fixture('product.variable.json');
             $variations = self::fixture('variations.json');
-            $json = static fn (mixed $data, array $headers = []) => new MockResponse(json_encode($data), ['response_headers' => $headers]);
-            $notFound = new MockResponse(json_encode(['code' => 'woocommerce_rest_product_invalid_id', 'message' => 'Invalid ID.', 'data' => ['status' => 404]]), ['http_code' => 404]);
+            $json = static fn (mixed $data, array $headers = []) => new MockResponse(json_encode($data, \JSON_THROW_ON_ERROR), ['response_headers' => $headers]);
+            $notFound = new MockResponse(json_encode(['code' => 'woocommerce_rest_product_invalid_id', 'message' => 'Invalid ID.', 'data' => ['status' => 404]], \JSON_THROW_ON_ERROR), ['http_code' => 404]);
 
             return match (true) {
                 'products' === $path && isset($query['slug']) => $json('margaux' === $query['slug'] ? [$variable] : []),
-                'products' === $path && isset($query['include']) => $json(array_values(array_filter([$simple, $variable], static fn ($p) => \in_array((string) $p['id'], explode(',', $query['include']), true)))),
+                'products' === $path && isset($query['include']) => $json(array_values(array_filter([$simple, $variable], static fn (array $p) => \in_array(Data::cast($p['id'] ?? null), explode(',', Data::cast($query['include'])), true)))),
                 'products' === $path => $json('2' === ($query['page'] ?? '1') ? [$variable] : [$simple], ['X-WP-Total' => '2', 'X-WP-TotalPages' => '2']),
                 'products/501' === $path => $json($simple),
                 'products/600' === $path => $json($variable),
-                'products/602' === $path => $json($variations[1] + ['parent_id' => 600]),
+                'products/602' === $path => $json(Data::map($variations[1] ?? null) + ['parent_id' => 600]),
                 'products/600/variations' === $path => $json($variations, ['X-WP-TotalPages' => '1']),
                 default => $notFound,
             };
@@ -88,6 +94,7 @@ final class WooCommerceCatalogueTest extends TestCase
     public function testASimpleProductIsItsOwnOnlyVariant(): void
     {
         $product = $this->gateway()->fetchProduct('501');
+        self::assertNotNull($product);
 
         self::assertSame('woocommerce', $product->provider);
         self::assertSame('501', $product->reference);
@@ -106,14 +113,19 @@ final class WooCommerceCatalogueTest extends TestCase
 
         self::assertCount(1, $product->variants);
         $variant = $product->variants[0];
+        $price = $variant->price();
+        $offer = $variant->offer();
+        self::assertNotNull($price);
+        self::assertNotNull($offer);
+        self::assertNotNull($variant->stock);
         self::assertSame('501', $variant->reference);
         self::assertNull($variant->title);
         self::assertSame('CRM-BRUT', $variant->sku);
         self::assertSame('3760000000501', $variant->barcode);
-        self::assertSame(1490, $variant->price()->amount, 'the sale price');
-        self::assertSame(1650, $variant->offer()->compareAt->amount, 'the regular one struck through');
-        self::assertSame('EUR', $variant->price()->currency);
-        self::assertTrue($variant->offer()->available);
+        self::assertSame(1490, $price->amount, 'the sale price');
+        self::assertSame(1650, $offer->compareAt?->amount, 'the regular one struck through');
+        self::assertSame('EUR', $price->currency);
+        self::assertTrue($offer->available);
         self::assertSame(36, $variant->stock->quantity);
         self::assertTrue($variant->stock->tracked);
         self::assertSame(1500, $variant->weight, 'kilograms in grams');
@@ -122,6 +134,7 @@ final class WooCommerceCatalogueTest extends TestCase
     public function testAVariableProductsVariationsAreItsVariants(): void
     {
         $product = $this->gateway(['currency' => 'CHF'])->fetchProduct('https://shop.example/product/margaux/?attribute_pa_millesime=2019');
+        self::assertNotNull($product);
 
         self::assertSame('margaux', $this->calls[0][2]['slug'], 'the slug of the page');
         self::assertSame('600', $product->reference);
@@ -136,26 +149,32 @@ final class WooCommerceCatalogueTest extends TestCase
         self::assertSame('601', $v2019->reference);
         self::assertSame('2019', $v2019->title);
         self::assertSame(['Millésime' => '2019'], $v2019->options);
-        self::assertSame(2900, $v2019->price()->amount);
-        self::assertSame('CHF', $v2019->price()->currency);
-        self::assertNull($v2019->offer()->compareAt);
-        self::assertFalse($v2019->offer()->available, 'a draft product is not for sale');
+        $price = $v2019->price();
+        $offer = $v2019->offer();
+        self::assertNotNull($price);
+        self::assertNotNull($offer);
+        self::assertNotNull($v2019->stock);
+        self::assertNotNull($v2018->stock);
+        self::assertSame(2900, $price->amount);
+        self::assertSame('CHF', $price->currency);
+        self::assertNull($offer->compareAt);
+        self::assertFalse($offer->available, 'a draft product is not for sale');
         self::assertFalse($v2019->stock->tracked);
         self::assertNull($v2019->stock->quantity);
-        self::assertSame('https://shop.example/wp-content/uploads/margaux-2019.jpg', $v2019->image->url);
+        self::assertSame('https://shop.example/wp-content/uploads/margaux-2019.jpg', $v2019->image?->url);
         self::assertSame(1300, $v2019->weight);
         self::assertTrue($v2018->stock->tracked, '"parent": the product counts it');
         self::assertSame(7, $v2018->stock->quantity);
         self::assertNull($v2018->image, 'no picture of its own');
-        self::assertSame(2400, $product->price()->amount);
+        self::assertSame(2400, $product->price()?->amount);
     }
 
     public function testAProductIsFoundByIdSlugVariationOrNotAtAll(): void
     {
         $gateway = $this->gateway();
-        self::assertSame('600', $gateway->fetchProduct('margaux')->reference, 'a slug');
-        self::assertSame('600', $gateway->fetchProduct('602')->reference, 'a variation answers its product');
-        self::assertSame('501', $gateway->fetchProduct('https://shop.example/?post_type=product&p=501')->reference);
+        self::assertSame('600', $gateway->fetchProduct('margaux')?->reference, 'a slug');
+        self::assertSame('600', $gateway->fetchProduct('602')?->reference, 'a variation answers its product');
+        self::assertSame('501', $gateway->fetchProduct('https://shop.example/?post_type=product&p=501')?->reference);
         self::assertNull($gateway->fetchProduct('404'));
         self::assertNull($gateway->fetchProduct('https://shop.example/product/nothing/'));
     }
@@ -186,12 +205,14 @@ final class WooCommerceCatalogueTest extends TestCase
         $updated = $gateway->notify($body, $headers($body, 'product.updated'));
         self::assertTrue($updated->isCatalogue());
         self::assertSame('501', $updated->reference);
+        self::assertNotNull($updated->product);
         self::assertSame('Domaine Exemple', $updated->product->brand);
-        self::assertSame(1490, $updated->product->price()->amount);
+        self::assertSame(1490, $updated->product->price()?->amount);
         self::assertSame([], $this->calls, 'a simple product: nothing to ask');
 
         $body = (string) file_get_contents(__DIR__.'/Fixtures/product.variable.json');
         $created = $gateway->notify($body, $headers($body, 'product.created'));
+        self::assertNotNull($created->product);
         self::assertCount(2, $created->product->variants, 'the variations read along');
 
         $deleted = $gateway->notify($body = '{"id":501}', $headers($body, 'product.deleted'));

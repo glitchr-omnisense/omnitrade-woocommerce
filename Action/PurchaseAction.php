@@ -11,6 +11,7 @@ use Omnitrade\Exception\ProviderException;
 use Omnitrade\Request\Purchase;
 use Omnitrade\Request\Request;
 use Omnitrade\WooCommerce\Api;
+use Omnitrade\WooCommerce\Data;
 use Omnitrade\WooCommerce\Orders;
 
 /**
@@ -43,8 +44,8 @@ final class PurchaseAction implements ActionInterface, ApiAwareInterface, TagsAw
             throw new ProviderException('woocommerce', 'WooCommerce created no order.');
         }
         if (empty($order['payment_url'])) {
-            throw new ProviderException('woocommerce', sprintf('Order %s was created, but the shop gave no payment URL.', $order['id']));
+            throw new ProviderException('woocommerce', sprintf('Order %s was created, but the shop gave no payment URL.', Data::cast($order['id'])));
         }
-        $request->setResult(Orders::transaction($order));
+        $request->setResult(Orders::transaction(Data::map($order)));
     }
 }

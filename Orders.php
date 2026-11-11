@@ -54,15 +54,17 @@ final class Orders
         return $tags;
     }
 
+    /** @param array<mixed> $order */
     public static function status(array $order): Status
     {
+        $read = Data::of($order);
         $refunded = 0;
-        foreach ($order['refunds'] ?? [] as $refund) {
-            $refunded += (int) round(abs((float) ($refund['total'] ?? 0)) * 100);
+        foreach ($read->each('refunds') as $refund) {
+            $refunded += (int) round(abs(Data::decimal($refund->get('total') ?? 0)) * 100);
         }
-        $total = (int) round((float) ($order['total'] ?? 0) * 100);
+        $total = (int) round(Data::decimal($order['total'] ?? 0) * 100);
 
-        return match ((string) ($order['status'] ?? '')) {
+        return match ($read->text('status')) {
             'processing', 'completed' => $refunded > 0 ? ($refunded >= $total ? Status::REFUNDED : Status::PARTIALLY_REFUNDED) : Status::PAID,
             'refunded' => Status::REFUNDED,
             'cancelled' => Status::CANCELLED,
@@ -74,24 +76,25 @@ final class Orders
     /** @param array<string, mixed> $order */
     public static function transaction(array $order): Transaction
     {
-        $currency = strtoupper((string) ($order['currency'] ?? 'EUR'));
+        $read = Data::of($order);
+        $currency = strtoupper(Data::cast($order['currency'] ?? 'EUR'));
         $status = self::status($order);
         $refunded = 0;
-        foreach ($order['refunds'] ?? [] as $refund) {
-            $refunded += Money::fromDecimal((string) abs((float) ($refund['total'] ?? 0)), $currency)->amount;
+        foreach ($read->each('refunds') as $refund) {
+            $refunded += Money::fromDecimal((string) abs(Data::decimal($refund->get('total') ?? 0)), $currency)->amount;
         }
 
         return new Transaction(
             provider: 'woocommerce',
-            reference: (string) $order['id'],
+            reference: $read->text('id'),
             status: $status,
-            amount: isset($order['total']) ? Money::fromDecimal((string) $order['total'], $currency) : null,
-            redirectUrl: Status::PENDING === $status ? ($order['payment_url'] ?? null) : null,
-            message: $order['status'] ?? null,
-            method: ($order['payment_method'] ?? null) ?: null,
+            amount: isset($order['total']) ? Money::fromDecimal($read->text('total'), $currency) : null,
+            redirectUrl: Status::PENDING === $status ? $read->textOrNull('payment_url') : null,
+            message: $read->textOrNull('status'),
+            method: Data::castOrNull(($order['payment_method'] ?? null) ?: null),
             refunded: $refunded > 0 ? Money::of($refunded, $currency) : null,
             metadata: array_filter(['number' => $order['number'] ?? null, 'order_key' => $order['order_key'] ?? null, 'transaction_id' => $order['transaction_id'] ?? null]),
-            createdAt: isset($order['date_created_gmt']) ? new \DateTimeImmutable($order['date_created_gmt'].'Z') : null,
+            createdAt: isset($order['date_created_gmt']) ? new \DateTimeImmutable($read->text('date_created_gmt').'Z') : null,
             raw: $order,
         );
     }
@@ -99,41 +102,43 @@ final class Orders
     /** @param array<string, mixed> $order */
     public static function platformOrder(array $order): PlatformOrder
     {
-        $currency = strtoupper((string) ($order['currency'] ?? 'EUR'));
-        $billing = $order['billing'] ?? [];
-        $shipping = $order['shipping'] ?? [];
+        $read = Data::of($order);
+        $currency = strtoupper(Data::cast($order['currency'] ?? 'EUR'));
+        $billing = $read->data('billing');
+        $shipping = $read->data('shipping');
+        $address = static fn (string $key): ?string => Data::castOrNull(($shipping->get($key) ?? $billing->get($key)) ?: null);
         $lines = [];
-        foreach ($order['line_items'] ?? [] as $item) {
-            $quantity = max(1, (int) ($item['quantity'] ?? 1));
+        foreach ($read->each('line_items') as $item) {
+            $quantity = max(1, Data::integer($item->get('quantity') ?? 1));
             $lines[] = new Line(
-                (string) ($item['name'] ?? ''),
-                Money::fromDecimal((string) ($item['price'] ?? ((float) ($item['total'] ?? 0)) / $quantity), $currency),
+                $item->text('name'),
+                Money::fromDecimal(Data::cast($item->get('price') ?? Data::decimal($item->get('total') ?? 0) / $quantity), $currency),
                 $quantity,
-                ($item['sku'] ?? null) ?: null,
-                reference: isset($item['product_id']) ? (string) $item['product_id'] : null,
+                Data::castOrNull($item->get('sku') ?: null),
+                reference: $item->textOrNull('product_id'),
             );
         }
 
         return new PlatformOrder(
             provider: 'woocommerce',
-            reference: (string) $order['id'],
-            number: isset($order['number']) ? '#'.$order['number'] : null,
+            reference: $read->text('id'),
+            number: isset($order['number']) ? '#'.$read->text('number') : null,
             status: self::status($order),
-            total: Money::fromDecimal((string) ($order['total'] ?? '0'), $currency),
+            total: Money::fromDecimal(Data::cast($order['total'] ?? '0'), $currency),
             customer: new Customer(
-                email: ($billing['email'] ?? null) ?: null,
-                name: trim(($billing['first_name'] ?? '').' '.($billing['last_name'] ?? '')) ?: null,
-                reference: isset($order['customer_id']) && $order['customer_id'] ? (string) $order['customer_id'] : null,
-                phone: ($billing['phone'] ?? null) ?: null,
-                street: array_values(array_filter([$shipping['address_1'] ?? $billing['address_1'] ?? null, $shipping['address_2'] ?? $billing['address_2'] ?? null])),
-                postalCode: ($shipping['postcode'] ?? $billing['postcode'] ?? null) ?: null,
-                city: ($shipping['city'] ?? $billing['city'] ?? null) ?: null,
-                country: ($shipping['country'] ?? $billing['country'] ?? null) ?: null,
+                email: Data::castOrNull($billing->get('email') ?: null),
+                name: trim(Data::cast($billing->get('first_name') ?? '').' '.Data::cast($billing->get('last_name') ?? '')) ?: null,
+                reference: isset($order['customer_id']) && $order['customer_id'] ? $read->text('customer_id') : null,
+                phone: Data::castOrNull($billing->get('phone') ?: null),
+                street: array_values(array_map(Data::cast(...), array_filter([$shipping->get('address_1') ?? $billing->get('address_1'), $shipping->get('address_2') ?? $billing->get('address_2')]))),
+                postalCode: $address('postcode'),
+                city: $address('city'),
+                country: $address('country'),
             ),
             lines: $lines,
-            financialStatus: $order['status'] ?? null,
+            financialStatus: $read->textOrNull('status'),
             fulfillmentStatus: 'completed' === ($order['status'] ?? null) ? 'completed' : null,
-            createdAt: isset($order['date_created_gmt']) ? new \DateTimeImmutable($order['date_created_gmt'].'Z') : null,
+            createdAt: isset($order['date_created_gmt']) ? new \DateTimeImmutable($read->text('date_created_gmt').'Z') : null,
             raw: $order,
         );
     }

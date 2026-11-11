@@ -8,6 +8,7 @@ use Omnitrade\Action\ApiAwareTrait;
 use Omnitrade\Request\FetchTransaction;
 use Omnitrade\Request\Request;
 use Omnitrade\WooCommerce\Api;
+use Omnitrade\WooCommerce\Data;
 use Omnitrade\WooCommerce\Orders;
 
 /** The order's payment state as the shop has it now. */
@@ -29,6 +30,6 @@ final class FetchTransactionAction implements ActionInterface, ApiAwareInterface
     public function execute(Request $request): void
     {
         \assert($request instanceof FetchTransaction);
-        $request->setResult(Orders::transaction($this->api->call('GET', 'orders/'.rawurlencode($request->reference))));
+        $request->setResult(Orders::transaction(Data::map($this->api->call('GET', 'orders/'.rawurlencode($request->reference)))));
     }
 }

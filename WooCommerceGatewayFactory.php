@@ -48,15 +48,15 @@ final class WooCommerceGatewayFactory extends GatewayFactory
             'omnitrade.api' => function (Config $c) {
                 $http = $this->http ?? HttpClient::create();
 
-                return new Api($http, (string) $c['url'], (string) $c['consumer_key'], (string) $c['consumer_secret'], $c['webhook_secret'] ?: null, (int) $c['timeout'], $c->backoff());
+                return new Api($http, Data::cast($c['url']), Data::cast($c['consumer_key']), Data::cast($c['consumer_secret']), Data::cast($c['webhook_secret']) ?: null, Data::integer($c['timeout']), $c->backoff());
             },
             'omnitrade.action.purchase' => new PurchaseAction(),
             'omnitrade.action.fetch' => new FetchTransactionAction(),
             'omnitrade.action.order' => new FetchOrderAction(),
             'omnitrade.action.refund' => new RefundAction(),
-            'omnitrade.action.notify' => static fn (Config $c) => new NotifyAction((string) $c['currency'], (string) $c['weight_unit']),
-            'omnitrade.action.products' => static fn (Config $c) => new FetchProductsAction((string) $c['currency'], (string) $c['weight_unit'], (string) $c['product_status']),
-            'omnitrade.action.product' => static fn (Config $c) => new FetchProductAction((string) $c['currency'], (string) $c['weight_unit']),
+            'omnitrade.action.notify' => static fn (Config $c) => new NotifyAction(Data::cast($c['currency']), Data::cast($c['weight_unit'])),
+            'omnitrade.action.products' => static fn (Config $c) => new FetchProductsAction(Data::cast($c['currency']), Data::cast($c['weight_unit']), Data::cast($c['product_status'])),
+            'omnitrade.action.product' => static fn (Config $c) => new FetchProductAction(Data::cast($c['currency']), Data::cast($c['weight_unit'])),
             'omnitrade.action.inventory' => new FetchInventoryAction(),
             'omnitrade.action.methods' => new GetPaymentMethodsAction(),
         ]);

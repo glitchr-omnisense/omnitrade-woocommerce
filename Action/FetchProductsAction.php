@@ -9,6 +9,7 @@ use Omnitrade\Model\ProductPage;
 use Omnitrade\Request\FetchProducts;
 use Omnitrade\Request\Request;
 use Omnitrade\WooCommerce\Api;
+use Omnitrade\WooCommerce\Data;
 use Omnitrade\WooCommerce\Products;
 
 /**
@@ -54,7 +55,7 @@ final class FetchProductsAction implements ActionInterface, ApiAwareInterface
 
         $products = [];
         foreach ($items as $item) {
-            $variations = 'variable' === ($item['type'] ?? null) ? $this->api->all('products/'.$item['id'].'/variations') : [];
+            $variations = 'variable' === ($item['type'] ?? null) ? $this->api->all('products/'.Data::cast($item['id'] ?? null).'/variations') : [];
             $products[] = Products::product($item, $variations, $this->currency, $this->weightUnit);
         }
         $more = null !== $pages ? $page < $pages : \count($items) === $perPage;

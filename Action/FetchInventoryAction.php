@@ -9,6 +9,7 @@ use Omnitrade\Exception\ProviderException;
 use Omnitrade\Request\FetchInventory;
 use Omnitrade\Request\Request;
 use Omnitrade\WooCommerce\Api;
+use Omnitrade\WooCommerce\Data;
 use Omnitrade\WooCommerce\Products;
 
 /**
@@ -49,8 +50,8 @@ final class FetchInventoryAction implements ActionInterface, ApiAwareInterface
         $ids = array_values(array_unique(array_map(static fn ($id) => (string) $id, $request->references)));
         $found = [];
         foreach (array_chunk($ids, 100) as $chunk) {
-            foreach ($this->api->call('GET', 'products', null, ['include' => implode(',', $chunk), 'per_page' => 100, 'status' => 'any']) as $product) {
-                $found[(string) $product['id']] = $product;
+            foreach (Data::maps($this->api->call('GET', 'products', null, ['include' => implode(',', $chunk), 'per_page' => 100, 'status' => 'any'])) as $product) {
+                $found[Data::cast($product['id'] ?? null)] = $product;
             }
         }
         foreach ($ids as $id) {
@@ -68,7 +69,7 @@ final class FetchInventoryAction implements ActionInterface, ApiAwareInterface
                 throw $e;
             }
             if ('variation' === ($item['type'] ?? null) && 'parent' === ($item['manage_stock'] ?? null) && !empty($item['parent_id'])) {
-                $stocks[] = Products::stock($item, $this->api->call('GET', 'products/'.$item['parent_id']));
+                $stocks[] = Products::stock($item, $this->api->call('GET', 'products/'.Data::cast($item['parent_id'])));
             } else {
                 $stocks[] = Products::stock($item);
             }
@@ -77,13 +78,17 @@ final class FetchInventoryAction implements ActionInterface, ApiAwareInterface
         $request->setResult($stocks);
     }
 
-    /** @return list<\Omnitrade\Model\Stock> a simple product's own, a variable one's variations' */
+    /**
+     * @param array<string, mixed> $product
+     *
+     * @return list<\Omnitrade\Model\Stock> a simple product's own, a variable one's variations'
+     */
     private function stocks(array $product): array
     {
         if ('variable' !== ($product['type'] ?? null)) {
             return [Products::stock($product)];
         }
 
-        return array_map(static fn (array $variation) => Products::stock($variation, $product), $this->api->all('products/'.$product['id'].'/variations'));
+        return array_map(static fn (array $variation) => Products::stock($variation, $product), $this->api->all('products/'.Data::cast($product['id'] ?? null).'/variations'));
     }
 }

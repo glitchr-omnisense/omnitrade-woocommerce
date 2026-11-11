@@ -8,6 +8,7 @@ use Omnitrade\Action\ApiAwareTrait;
 use Omnitrade\Request\FetchOrder;
 use Omnitrade\Request\Request;
 use Omnitrade\WooCommerce\Api;
+use Omnitrade\WooCommerce\Data;
 use Omnitrade\WooCommerce\Orders;
 
 /** A shop order, whole. */
@@ -29,6 +30,6 @@ final class FetchOrderAction implements ActionInterface, ApiAwareInterface
     public function execute(Request $request): void
     {
         \assert($request instanceof FetchOrder);
-        $request->setResult(Orders::platformOrder($this->api->call('GET', 'orders/'.rawurlencode($request->reference))));
+        $request->setResult(Orders::platformOrder(Data::map($this->api->call('GET', 'orders/'.rawurlencode($request->reference)))));
     }
 }
