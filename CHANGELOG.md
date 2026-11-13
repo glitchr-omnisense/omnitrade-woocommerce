@@ -1,6 +1,18 @@
 # Changelog
 
-## Unreleased (1.x)
+## [Unreleased]
+
+## [1.0.0] - 2026-11-13
+
+The first stable release: it installs with Composer's default minimum-stability (stable).
+
+### Release
+- Requires `omnisense/contracts` `^1.0` and `omnisense/omnitrade` `^1.0`, stable versions, where it
+  required `@dev` ones; `extra.branch-alias` `dev-1.x` → `1.x-dev`.
+- CI: `.github/workflows/ci.yml` (glitchr-studio/ci's php-package.yml: the package installed alone,
+  PHPUnit, PHPStan against its baseline, a consumer install) and `release.yml` (that CI on the tag,
+  then glitchr-studio/ci's php-release.yml); `phpunit.xml.dist` runs the package's own tests.
+- README: the install line and a first call on a recorded answer (no account, nothing sent).
 
 ### Added
 - `policy.json` (`extra.omnisense.policy`): no rate limit of the REST API's own (the shop's host may set
@@ -26,4 +38,3 @@
   credentials) when `zend.exception_ignore_args` is off: a log of the whole chain wrote them. The
   message masks them as `***`, the previous is a copy of the client's exception (the same class and
   code), and no exception `Api` throws keeps its trace's arguments (`Omnitrade\Http\Redaction`).
-

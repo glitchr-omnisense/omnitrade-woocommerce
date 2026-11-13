@@ -5,6 +5,38 @@ the shop's own checkout (an order created unpaid, with its payment URL), the sho
 their payment state, refunds, the payment gateways switched on, the catalogue, and webhooks - the
 REST API v3.
 
+## Install and a first call
+
+```sh
+composer require omnitrade/woocommerce
+```
+
+No account for this first call: the shop's answer is recorded (Symfony's `MockHttpClient` answers in
+place of the API), so nothing leaves the process. With your own credentials, give the factory your
+HTTP client (or none: it makes its own).
+
+```php
+<?php
+
+require __DIR__.'/vendor/autoload.php';
+
+use Omnitrade\WooCommerce\WooCommerceGatewayFactory;
+use Symfony\Component\HttpClient\MockHttpClient;
+use Symfony\Component\HttpClient\Response\MockResponse;
+
+// The shop's answer (one order), recorded: no shop, and nothing leaves the process.
+$http = new MockHttpClient(new MockResponse('{"id": 1042, "number": "1042", "status": "processing", "currency": "EUR", "total": "12.50", "date_created_gmt": "2026-10-01T10:00:00",
+    "billing": {"first_name": "Camille", "last_name": "Durand", "email": "camille@example.org", "country": "FR"}, "line_items": [{"name": "Dix heures", "quantity": 1, "total": "12.50", "product_id": 55}]}'));
+$gateway = (new WooCommerceGatewayFactory($http))->create(['url' => 'https://shop.example/', 'consumer_key' => 'ck_not_a_key', 'consumer_secret' => 'cs_not_a_secret']);
+
+$order = $gateway->fetchOrder('1042');
+echo $order->number, ' ', $order->status->value, ' ', $order->total->decimal(), ' ', $order->customer?->name, "\n";   // #1042 paid 12.50 Camille Durand
+```
+
+A real call needs a WooCommerce shop and a REST API key and secret (below).
+
+## Configuration
+
 ```php
 $gateway = (new WooCommerceGatewayFactory($http))->create(['url' => 'https://shop.example/', 'consumer_key' => '...', 'consumer_secret' => '...']);   // $http: the application's HTTP client; none given, the factory makes its own
 ```
